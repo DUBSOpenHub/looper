@@ -2,14 +2,14 @@
 
 ## Overview
 
-This repository ships one GitHub Copilot CLI skill, **looper**. It is a skill, not a standalone agent.
+This repository ships one skill in the open [Agent Skills](https://agentskills.io/specification) format, **looper**, built for GitHub Copilot. It is a skill, not a standalone agent.
 
 ## Available Skills
 
 ### looper
 
 - **Purpose**: Carries a request to verified completion through a bounded loop of small, testable steps, with durable project-local state and a hard limit of 20 passes.
-- **Usage**: Open the GitHub Copilot CLI in a project and say:
+- **Usage**: Open GitHub Copilot, or any agent that has the skill installed, in a project and say:
   ```
   looper
   looper <your request>
@@ -18,6 +18,10 @@ This repository ships one GitHub Copilot CLI skill, **looper**. It is a skill, n
 - **Install**:
   ```bash
   curl -fsSL https://raw.githubusercontent.com/DUBSOpenHub/looper/main/quickstart.sh | bash
+  ```
+  For another agent, use the GitHub CLI (`gh skill` is in preview):
+  ```bash
+  gh skill install DUBSOpenHub/looper looper --agent claude-code --scope user
   ```
 - **Location**: `skills/looper/SKILL.md`
 

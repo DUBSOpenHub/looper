@@ -39,11 +39,11 @@ Please provide as much of the following as possible:
 - Pass-budget bypass: any way to exceed, reset, or refund the 20-pass limit
 - Path containment: the helper reading or writing outside the selected project's `.ralph-loop/` directory, including symlink and `..` tricks
 - Ledger integrity: overwriting or rewriting an immutable reservation or result
-- Instructions in `SKILL.md` that lead GitHub Copilot to bypass security controls, leak secrets into state or logs, or repeat uncertain destructive actions
+- Instructions in `SKILL.md` that lead an AI agent, such as GitHub Copilot, to bypass security controls, leak secrets into state or logs, or repeat uncertain destructive actions
 
 **Out of scope:**
 
-- Vulnerabilities in the GitHub Copilot CLI itself
+- Vulnerabilities in GitHub Copilot or any other AI agent that runs Looper
 - Vulnerabilities in the underlying language models
 - Local writers that maliciously replace pathnames concurrently (the helper assumes cooperating local writers)
 - Code produced for a user's request; review generated changes before running them
@@ -54,7 +54,7 @@ This repository has the following GitHub security features configured:
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| ⏳ Dependabot Alerts | Pending | Not yet enabled: GitHub has not finished initializing this new repository's dependency graph |
+| ⏳ Dependabot Alerts | Pending | Not yet enabled on this new repository; Dependabot security updates will open PRs once alerts are on |
 | ✅ Dependabot Security Updates | Enabled | Auto-creates PRs to fix vulnerable dependencies |
 | ✅ Dependabot Version Updates | Enabled | Keeps GitHub Actions pinned and current |
 | ✅ Secret Scanning | Enabled | Detects accidentally committed secrets |
@@ -65,7 +65,7 @@ This repository has the following GitHub security features configured:
 
 ## 📋 Best Practices
 
-Looper is a GitHub Copilot CLI skill with a small Bash helper. The main security considerations are:
+Looper is a skill for GitHub Copilot and other AI agents that support Agent Skills, with a small Bash helper. The main security considerations are:
 
 - 🔑 **No secrets in skill files or loop state.** Never put credentials in `SKILL.md`, `.ralph-loop/`, commands, or logs.
 - 📜 **Safe instructions.** Skill instructions must never tell the agent to bypass security controls or permissions.

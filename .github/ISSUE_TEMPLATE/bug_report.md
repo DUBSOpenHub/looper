@@ -12,7 +12,7 @@ A clear description of what went wrong.
 
 ## 🔄 Steps to reproduce
 
-1. Open the GitHub Copilot CLI in your project
+1. Open your AI agent (for example, GitHub Copilot) in your project
 2. Say `looper ...`
 3. See error/unexpected behavior
 
@@ -33,6 +33,6 @@ Do not paste secrets or private project details.
 ## 🖥️ Environment
 
 - **OS:** (macOS / Linux / WSL)
-- **GitHub Copilot CLI version:** (`copilot --version`)
+- **AI agent and version:** (for example, GitHub Copilot CLI, from `copilot --version`)
 - **Passes used:** (out of 20)
 - **Stage:** (Planning, Work pass, Repair, Final gate, Resume)
