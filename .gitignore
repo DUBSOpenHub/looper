@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+
+# Looper runtime state and self-test fixtures
+.ralph-loop/
+.ledger-selftest-*/
+
+# Dark Factory runtime artifacts
+.factory/
+
+# Environment
+.env
+.env.local

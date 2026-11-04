@@ -1,0 +1,47 @@
+title: "🔁 [What you asked Looper to do]"
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔁 Share Your Looper Run!
+
+        Tell us how a loop went: what worked, where it got stuck, and how many passes it used.
+
+  - type: input
+    id: request
+    attributes:
+      label: "🎯 Request"
+      description: "What did you ask Looper to do?"
+      placeholder: "e.g., Add pagination to the orders API and prove it works"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: "🏁 Outcome"
+      options:
+        - Verified complete
+        - Blocked
+        - Exhausted the 20 passes
+        - Interrupted and resumed
+    validations:
+      required: true
+
+  - type: input
+    id: passes
+    attributes:
+      label: "🔢 Passes used"
+      description: "How many of the 20 passes did it take?"
+      placeholder: "e.g., 7"
+    validations:
+      required: true
+
+  - type: textarea
+    id: highlights
+    attributes:
+      label: "✨ Highlights"
+      description: "What was interesting? A clever repair, a recovery after a reset, a criterion that caught a real bug?"
+    validations:
+      required: false
