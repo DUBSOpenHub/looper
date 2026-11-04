@@ -54,7 +54,7 @@ This repository has the following GitHub security features configured:
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| ✅ Dependabot Alerts | Enabled | Monitors dependencies for known vulnerabilities |
+| ⏳ Dependabot Alerts | Pending | Not yet enabled: GitHub has not finished initializing this new repository's dependency graph |
 | ✅ Dependabot Security Updates | Enabled | Auto-creates PRs to fix vulnerable dependencies |
 | ✅ Dependabot Version Updates | Enabled | Keeps GitHub Actions pinned and current |
 | ✅ Secret Scanning | Enabled | Detects accidentally committed secrets |
