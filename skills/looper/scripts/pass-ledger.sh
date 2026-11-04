@@ -109,8 +109,17 @@ acquire() {
     if ! mkdir "$lock"; then
         fail 4 "ledger locked; inspect $lock/owner, never steal a live lock"
     fi
+    # Some mkdir implementations report success when a concurrent caller created
+    # the directory first, so the exclusive create of owner decides the winner.
+    # A loser reports "locked" and never claims, or cleans up, the winner's lock.
+    if ! (set -o noclobber; printf '%s\n' "$owner_record" > "$lock/owner") 2>/dev/null; then
+        if [[ -e "$lock/owner" || -L "$lock/owner" || ! -d "$lock" ]]; then
+            fail 4 "ledger locked; inspect $lock/owner, never steal a live lock"
+        fi
+        owns_lock=1
+        fail 1 "cannot stage: $lock/owner"
+    fi
     owns_lock=1
-    write_new "$lock/owner" '%s\n' "$owner_record"
 }
 
 trap cleanup EXIT

@@ -143,6 +143,17 @@ class PassLedgerTests(unittest.TestCase):
         self.assertTrue((lock / "owner").exists())
         self.assertIn("used=0", self.run_ledger("status"))
 
+    def test_lock_race_loser_is_locked_even_if_mkdir_reports_success(self):
+        # Models a mkdir (e.g. uutils coreutils) that reports success when a
+        # concurrent caller created the directory first.
+        self.initialize()
+        lock = self.state / ".lock"
+        lock.mkdir()
+        (lock / "owner").write_text("pid=unknown\nhost=unknown\n")
+        self.fault("mkdir", '/bin/mkdir -p "$@"', "reserve", "work", "S01", expected=4)
+        self.assertEqual((lock / "owner").read_text(), "pid=unknown\nhost=unknown\n")
+        self.assertIn("used=0", self.run_ledger("status"))
+
     def test_refuses_unrecognized_state_unknown_format_and_gapped_ledger(self):
         self.state.mkdir()
         unrelated = self.state / "keep.txt"

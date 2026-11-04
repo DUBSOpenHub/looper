@@ -60,7 +60,7 @@ Ledger directories determine reservations spent; `result` determines a reservati
 
 ### Locking, failures, and interruption
 
-- Keep atomic `mkdir .lock` around ledger mutations and the existing one-open-reservation rule. `status` remains read-only and usable while a lock exists, as the original tests require; it is not a writer lease or an acceptance decision.
+- Keep atomic `mkdir .lock` around ledger mutations and the existing one-open-reservation rule. The exclusive (`noclobber`) create of `.lock/owner` is what decides the winner, because some `mkdir` implementations report success to a concurrent loser; a loser exits `4` without claiming the lock. `status` remains read-only and usable while a lock exists, as the original tests require; it is not a writer lease or an acceptance decision.
 - Never steal an existing lock, including one with missing/unknown ownership. Cleanup touches only the current invocation's owned owner record and empty lock directory; never recursively delete foreign contents or replace ownership.
 - Preserve the operation's failure/signal status through cleanup. Cleanup failure must not become an apparent successful operation; callers must check exit status, not stdout alone.
 - Failure after reservation-directory creation leaves that reservation spent. Failure before result publication leaves it open; failure after publication does not authorize changing/refunding its immutable outcome.

@@ -4,7 +4,7 @@ Results for the current Looper release (v1.0.0), produced by a Dark Factory run 
 
 | Suite | Result |
 |-------|--------|
-| Open self-tests (`skills/looper/scripts/test_pass_ledger.py`) | 26 / 26 passed |
+| Open self-tests (`skills/looper/scripts/test_pass_ledger.py`) | 27 / 27 passed (macOS and Ubuntu 26.04 CI) |
 | Sealed acceptance tests (written before implementation, hidden from the builder) | 17 / 17 passed |
 | Bash syntax check | Passed |
 | ShellCheck | Passed |
