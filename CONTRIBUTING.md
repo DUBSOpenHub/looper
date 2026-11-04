@@ -24,9 +24,8 @@ Open an [Issue](https://github.com/DUBSOpenHub/looper/issues) to:
 
 ### Prerequisites
 
-- [GitHub Copilot CLI](https://github.com/github/copilot-cli) installed
-- An active [GitHub Copilot subscription](https://github.com/features/copilot/plans)
-- Bash, Python 3, and [ShellCheck](https://www.shellcheck.net/)
+- Bash, Python 3, and [ShellCheck](https://www.shellcheck.net/), which are all you need to run the helper and its tests
+- Optional, to try the skill end to end: an AI agent that supports [Agent Skills](https://agentskills.io/specification), such as the [GitHub Copilot CLI](https://github.com/github/copilot-cli) (which requires an active [GitHub Copilot subscription](https://github.com/features/copilot/plans))
 
 ### Checks to run before opening a PR
 

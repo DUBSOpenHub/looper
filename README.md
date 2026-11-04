@@ -1,12 +1,12 @@
 # 🔁 Looper
 
-**Turn any request into small, verified steps. A bounded 20-pass loop with durable state, built for the GitHub Copilot CLI.**
+**Turn any request into small, verified steps. A bounded 20-pass loop with durable state for GitHub Copilot and any AI agent that supports Agent Skills.**
 
 [![Validate](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml/badge.svg)](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-brightgreen?logo=github)](SECURITY.md)
 ![Version: v1.0.0](https://img.shields.io/badge/version-v1.0.0-5E5E5E.svg)
-![Platform: GitHub Copilot CLI](https://img.shields.io/badge/platform-GitHub%20Copilot%20CLI-232F3E.svg)
+![Works with: GitHub Copilot and Agent Skills](https://img.shields.io/badge/works%20with-GitHub%20Copilot%20%7C%20Agent%20Skills-232F3E.svg)
 
 > ### ⚡ Install
 >
@@ -16,13 +16,21 @@
 >
 > Then open the [GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) in any project and say: `looper`
 >
-> *Requires an active [GitHub Copilot subscription](https://github.com/features/copilot/plans), Bash, and a writable project folder. macOS, Linux, or WSL.*
+> **Using another AI agent?** Install with the [GitHub CLI](https://cli.github.com/) instead:
+>
+> ```bash
+> gh skill install DUBSOpenHub/looper looper --agent claude-code --scope user
+> ```
+>
+> Swap `claude-code` for the agent you use; `gh skill install --help` lists the supported `--agent` values. See [Works With](#-works-with).
+>
+> *Requires Bash, a writable project folder, and an AI agent that supports [Agent Skills](https://agentskills.io/specification). macOS, Linux, or WSL. GitHub Copilot also needs an active [GitHub Copilot subscription](https://github.com/features/copilot/plans).*
 
 ---
 
 ## 🤔 What Is This?
 
-Looper is a GitHub Copilot CLI skill that carries a request all the way to **verified** completion instead of stopping at a plan or a green subset of tests. It breaks the request into numbered acceptance criteria and small steps, then repeats:
+Looper is a skill in the open [Agent Skills](https://agentskills.io/specification) format, built for GitHub Copilot, that carries a request all the way to **verified** completion instead of stopping at a plan or a green subset of tests. It breaks the request into numbered acceptance criteria and small steps, then repeats:
 
 **read state → reserve → implement → validate → repair → revalidate → checkpoint**
 
@@ -43,7 +51,7 @@ Long agent runs fail in predictable ways: they lose context, claim success from 
 
 ## 🚀 Usage
 
-In the GitHub Copilot CLI, from your project folder:
+In GitHub Copilot, or any other agent that has Looper installed, from your project folder:
 
 ```text
 looper
@@ -52,6 +60,16 @@ looper resume
 ```
 
 Looper inspects your project instructions and existing changes, writes acceptance criteria and a step plan to `.ralph-loop/state.md`, then works pass by pass until it is done, blocked, or out of passes.
+
+## 🔌 Works With
+
+Looper is built for GitHub Copilot and follows the open [Agent Skills](https://agentskills.io/specification) format, so other agents that support the format can load it too. To run it, an agent needs to read and edit files and run shell commands.
+
+- **GitHub Copilot.** The GitHub Copilot CLI, the GitHub Copilot app, the GitHub Copilot cloud agent, and agent mode in VS Code, Visual Studio, and JetBrains IDEs [support Agent Skills](https://docs.github.com/en/copilot/concepts/customizations/agent-skills). IDE support depends on your version, and each surface reads skills from its own locations. The one-line installer above targets the GitHub Copilot CLI.
+- **Other AI agents.** [`gh skill`](https://cli.github.com/manual/gh_skill) can install skills for Claude Code, Cursor, Codex, Gemini CLI, and many more, using the `--agent` flag shown above. `gh skill` is in preview, so its flags may change.
+- **Anything else.** Point your agent at [`skills/looper/SKILL.md`](skills/looper/SKILL.md) and ask it to follow the instructions.
+
+> **What is verified.** The pass-ledger helper and its self-tests are plain Bash and Python, and CI runs them on every pull request. The skill's wording is written for GitHub Copilot (for example, it uses `ask_user` when available and records a blocker when it is not), and how faithfully another agent follows it depends on the tool and the model behind it.
 
 ## 🗂️ State Layout
 
@@ -115,14 +133,20 @@ python3 -B scripts/test_pass_ledger.py
 
 ## ❓ FAQ
 
+**Do I need GitHub Copilot to use Looper?**
+No. It is built for GitHub Copilot, but any agent that supports Agent Skills can load it. See [Works With](#-works-with).
+
 **Does Looper run on its own in the background?**
-No. It only runs while a GitHub Copilot session is active. The on-disk state lets the next session resume it.
+No. It only runs while an agent session, such as GitHub Copilot, is active. The on-disk state lets the next session resume it.
 
 **Can I raise the 20-pass limit?**
 No. The helper has no reset or configurable-limit operation, by design.
 
 **Can I rename the skill without losing a running loop?**
 Yes. Renaming the skill never migrates state, resets the budget, or discards history.
+
+**Why does the helper say `state path must not contain symlinks`?**
+Looper refuses to read or write loop state through a symlink, including a symlinked parent folder, so a link cannot redirect the ledger. On macOS, `/tmp` is a symlink to `/private/tmp`, so a project under `/tmp` is rejected. Start your agent from the project's real path (`cd "$(pwd -P)"` switches to it) and try again.
 
 ## 🤝 Contributing
 

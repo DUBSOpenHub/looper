@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- README "Works With" section and a `gh skill install` route for using Looper with AI agents other than the GitHub Copilot CLI.
+- README FAQ entries on whether GitHub Copilot is required and on the `state path must not contain symlinks` error (for example, projects under `/tmp` on macOS).
+
+### Changed
+- Positioned Looper as a skill in the open Agent Skills format, built for GitHub Copilot, rather than as a GitHub Copilot CLI-only skill. README, AGENTS.md, SECURITY.md, CONTRIBUTING.md, and the bug report template now say so.
+
+### Fixed
+- Corrected the Dependabot alerts status note in SECURITY.md, which still blamed the dependency graph for alerts not being enabled.
+
 ## [1.0.0] - 2026-11-04
 
 ### Added
