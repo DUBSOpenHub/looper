@@ -3,6 +3,8 @@
 Run: `run-20261103-162029`  
 Decision: preserve the existing four-file architecture and v1 helper contract.
 
+> **v1.1 update:** This document records the v1.0 design. v1.1 deliberately extends the helper contract with evidence gates, named loops, and verified releases; see [v1.1 additions](#v11-additions).
+
 ## Scope and current strengths
 
 Harden the existing skill for GitHub Copilot; expose it under the callable name `looper` without replacing it with another product. Install from `skills/looper/` into `~/.copilot/skills/looper/`. Preserve `.ralph-loop/` project-local durable state unchanged for existing runs. Keep Bash 3.2/macOS compatibility, Python standard-library tests, existing user work, and all eight original tests.
@@ -125,3 +127,15 @@ The GitHub Copilot CLI skill name and install-directory basename are `looper`; u
 The helper cannot infer project ownership from `STATE` alone or enforce the skill's repair, evidence, or acceptance decisions. Ordinary local filesystem semantics and cooperating writers are assumed; Bash pathname checks are not a race-proof sandbox against hostile concurrent directory replacement.
 Same-directory rename prevents partially published individual records, not a multi-file transaction or guaranteed power-loss durability. Preserve evidence and block ambiguous recovery rather than claim stronger guarantees.
 Implement only the justified changes above in the four scoped files, retain existing behavior where sufficient, and validate before claiming release acceptance. No daemon, UI, orchestrator, plugins, resettable limits, sealed-source access, or fabricated production outcomes.
+
+## v1.1 additions
+
+v1.0 left acceptance evidence entirely to the agent. v1.1 moves the parts that can be checked mechanically into the helper, without changing the ledger marker, the 20-pass cap, or the `status` output.
+
+- **Run records.** `run NN [--baseline|--snapshot] [--ac IDS] [--label NAME] [--timeout S] -- COMMAND` writes `passes/NN/runs/NNN/{command,cwd,meta,output,finished-at,exit}`. `meta` is published last before the command starts; `exit` is published last after it finishes. A run with `meta` but no `exit` is in flight or interrupted and blocks `close passed`.
+- **Lock and process handling.** The ledger lock is released while the command runs. The command and its timeout watcher run in separate process groups (`set -m`), so a timeout or an interrupted helper stops grandchildren too. The main shell stops the watcher with `SIGKILL`, which it cannot catch, so the watcher can never record a late timeout. A command that outlives its limit never counts as passing.
+- **Phases.** In a work pass, runs are `baseline` (before any other run), `initial`, or, after the one allowed `repair`, `revalidate`. A final pass has only `final` runs. The same command and working directory may run at most three times per phase.
+- **Gates.** A work pass closes `passed` only if every run finished and every run in the deciding phase exited 0, including a rerun of each check that failed before the repair. A final pass also needs at least three runs, identical opening and closing snapshot runs with non-empty output, and a check covering every `AC01`..`ACnn` up to the recorded `criteria` count, which can only grow. `verdict` re-applies the final gate to the last pass.
+- **Named loops.** `.ralph-loop-NAME/` directories are independent ledgers that use the same helper; `PROJECT_ROOT loops` lists them and refuses to follow symlinks.
+- **Releases.** `tools/build-release.sh` builds the tarball, installer copy, and `SHA256SUMS` from a commit. The `Release` workflow runs on protected `v*` tags, attests build provenance, and publishes an immutable release. `quickstart.sh` installs a pinned version only after checksum and path checks.
+

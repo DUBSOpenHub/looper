@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the tag
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Tag $TAG is not vX.Y.Z"; exit 1; }
+
+      - name: Self-tests
+        working-directory: skills/looper
+        run: python3 -B scripts/test_pass_ledger.py
+
+      - name: Installer tests
+        run: python3 -B tests/test_quickstart.py
+
+      - name: Build release assets
+        run: bash tools/build-release.sh "$TAG" dist HEAD
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8  # v4.2.2
+        with:
+          subject-path: |
+            dist/looper-*.tar.gz
+            dist/quickstart.sh
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=${TAG#v}
+          awk -v heading="## [$version] - " '
+            index($0, heading) == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          [[ -s notes.md ]] || { echo "::error::CHANGELOG.md has no notes for $version"; exit 1; }
+          cat >> notes.md <<EOF
+
+          ## Install
+
+          \`\`\`bash
+          curl -fsSL https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/quickstart.sh | bash
+          \`\`\`
+
+          Verify the files with \`SHA256SUMS\`, or check build provenance with
+          \`gh attestation verify looper-$TAG.tar.gz --repo $GITHUB_REPOSITORY\`.
+          EOF
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
+            --title "Looper $TAG" --notes-file notes.md \
+            dist/looper-"$TAG".tar.gz dist/quickstart.sh dist/SHA256SUMS
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

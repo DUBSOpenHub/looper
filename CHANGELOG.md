@@ -7,12 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-04
+
 ### Added
+- Evidence gates in the pass-ledger helper. `run` executes a check, records its exact command, working directory, output, exit code, phase, and covered acceptance criteria under `passes/NN/runs/`, enforces a timeout on the whole process group, and releases the ledger lock while the command runs. `repair` records the single repair batch a work pass may use.
+- `criteria COUNT` records the number of acceptance criteria. The count can only grow, so criteria cannot be dropped to get a green final gate.
+- `verdict` reports whether a loop is complete (`complete=yes final=NN criteria=N`) or why it is not.
+- Named loops for independent goals: `.ralph-loop-<name>/` state with its own budget, and `PROJECT_ROOT loops` to list every loop in a project.
+- Pinned, verifiable releases. Each tagged release publishes `looper-vX.Y.Z.tar.gz`, `quickstart.sh`, and `SHA256SUMS`, with GitHub build provenance attestations.
+- Installer tests (`tests/test_quickstart.py`) and the release builder `tools/build-release.sh`.
+- A recorded end-to-end run through the GitHub Copilot CLI in `docs/VALIDATION.md`.
 - README "Works With" section and a `gh skill install` route for using Looper with AI agents other than the GitHub Copilot CLI.
 - README FAQ entries on whether GitHub Copilot is required and on the `state path must not contain symlinks` error (for example, projects under `/tmp` on macOS).
 
 ### Changed
+- `close NN passed` now requires recorded evidence and exits `6` without it. A work pass needs every run in its deciding phase to exit 0, including a rerun of every check that failed before `repair`. A final pass needs matching opening and closing snapshots, every run to exit 0, and a check for every acceptance criterion. Each command may run at most three times per phase. Ledgers created by v1.0 stay readable, but their open passes must be closed `failed` or `interrupted` and verified again.
+- New exit codes: `6` (refused by an evidence gate or rule) and `7` (the recorded command failed).
+- `quickstart.sh` installs a pinned release version, verifies it against `SHA256SUMS`, accepts an optional `LOOPER_SHA256` pin and `LOOPER_VERIFY_ATTESTATION=1` provenance check, refuses branch names, and rejects archives with unexpected paths or links. It no longer downloads from the `main` branch.
 - Positioned Looper as a skill in the open Agent Skills format, built for GitHub Copilot, rather than as a GitHub Copilot CLI-only skill. README, AGENTS.md, SECURITY.md, CONTRIBUTING.md, and the bug report template now say so.
+- Grew the helper self-tests from 27 to 37 cases.
 
 ### Fixed
 - Corrected the Dependabot alerts status note in SECURITY.md, which still blamed the dependency graph for alerts not being enabled.
