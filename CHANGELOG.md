@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- Corrected the README helper example to use the installed helper path, hash working-tree file contents, and keep repair instructions separate from the passing path.
+- Aligned AGENTS.md, CONTRIBUTING.md, and SECURITY.md with named loops, evidence boundaries, and documentation-only checks.
+- Clarified tested agent coverage, legacy-loop upgrades, local versus release installs, and the limits of checksums and build provenance.
+- Added prominent links to the repository's agent instructions, security policy, contribution guide, and release history.
+
 ## [1.1.0] - 2026-11-04
 
 ### Added
