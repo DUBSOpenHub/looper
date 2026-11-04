@@ -34,7 +34,12 @@ cd skills/looper
 /bin/bash -n scripts/pass-ledger.sh
 shellcheck scripts/pass-ledger.sh
 python3 -B scripts/test_pass_ledger.py
+cd ../..
+shellcheck quickstart.sh tools/build-release.sh e2e/run-copilot-e2e.sh
+python3 -B tests/test_quickstart.py
 ```
+
+To exercise the skill itself, install your checkout with `./quickstart.sh` and run `e2e/run-copilot-e2e.sh`. It drives the GitHub Copilot CLI through a small task, then checks the ledger verdict, the project's tests, and hidden acceptance checks. It uses your GitHub Copilot subscription, so it is not part of CI.
 
 CI runs the same checks on every pull request. Branch protection on `main` requires the `validate` check to pass.
 
@@ -44,9 +49,16 @@ CI runs the same checks on every pull request. Branch protection on `main` requi
 - **Keep `.ralph-loop/` and the `ralph-loop-pass-ledger-v1` marker.** They keep ledgers created before the rename resumable.
 - **No new runtime dependencies.** The helper stays Bash-only; tests stay on the Python standard library.
 - **Never weaken verification.** Changes must not let a criterion be removed, skipped, or redefined to obtain green results.
-- **Add a test for every behavior change** to `scripts/test_pass_ledger.py`.
+- **Never let `passed` succeed without recorded evidence.** `close passed` and `verdict` must keep depending on the helper's own run records.
+- **Add a test for every behavior change** to `scripts/test_pass_ledger.py` or `tests/test_quickstart.py`.
 - **Write "GitHub Copilot" in full** in all user-facing text.
 - Update [CHANGELOG.md](CHANGELOG.md) for every user-visible change.
+
+## 📦 Releasing
+
+1. Bump `LOOPER_VERSION` in `quickstart.sh`, add a `## [X.Y.Z] - DATE` section to the changelog, and update the pinned install commands in the README and AGENTS.md. Merge through a pull request.
+2. Tag the merge commit `vX.Y.Z` and push the tag. The `Release` workflow runs the tests, builds the assets with `tools/build-release.sh`, attests their build provenance, and publishes the release.
+3. Releases are immutable and `v*` tags are protected, so a published version never changes. Fix mistakes with a new patch release.
 
 ## 🔒 Security
 

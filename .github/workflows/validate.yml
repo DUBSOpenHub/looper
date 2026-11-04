@@ -46,13 +46,18 @@ jobs:
         run: |
           /bin/bash -n skills/looper/scripts/pass-ledger.sh
           /bin/bash -n quickstart.sh
+          /bin/bash -n tools/build-release.sh
+          /bin/bash -n e2e/run-copilot-e2e.sh
 
       - name: ShellCheck
-        run: shellcheck skills/looper/scripts/pass-ledger.sh quickstart.sh
+        run: shellcheck skills/looper/scripts/pass-ledger.sh quickstart.sh tools/build-release.sh e2e/run-copilot-e2e.sh
 
       - name: Self-tests
         working-directory: skills/looper
         run: python3 -B scripts/test_pass_ledger.py -v
+
+      - name: Installer and release-build tests
+        run: python3 -B tests/test_quickstart.py -v
 
       - name: Quickstart installs from a local checkout
         run: |

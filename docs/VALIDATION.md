@@ -1,21 +1,43 @@
 # Validation Report
 
-Results for the current Looper release (v1.0.0), produced by a Dark Factory run with sealed-envelope testing.
+Results for the current Looper release (v1.1.0).
 
 | Suite | Result |
 |-------|--------|
-| Open self-tests (`skills/looper/scripts/test_pass_ledger.py`) | 27 / 27 passed (macOS and Ubuntu 26.04 CI) |
-| Sealed acceptance tests (written before implementation, hidden from the builder) | 17 / 17 passed |
-| Bash syntax check | Passed |
-| ShellCheck | Passed |
-| Gap score (sealed failures ÷ sealed total) | **0%** |
+| Helper self-tests (`skills/looper/scripts/test_pass_ledger.py`) | 37 / 37 passed (macOS; Ubuntu in CI) |
+| Installer and release-build tests (`tests/test_quickstart.py`) | 8 / 8 passed |
+| End-to-end run through the GitHub Copilot CLI (`e2e/run-copilot-e2e.sh`) | Passed (details below) |
+| Bash syntax check and ShellCheck | Passed for every shell script |
+| v1.0.0 sealed acceptance tests (Dark Factory, hidden from the builder) | 17 / 17 passed at v1.0.0 |
 
-## What the sealed tests cover
+## End-to-end run
 
-The sealed suite was written from the PRD alone, before any code existed, and covers the same acceptance criteria listed in [PRD.md](PRD.md), including the `looper` skill name and the preservation of existing `.ralph-loop/` ledgers.
+On 2026-11-04 the GitHub Copilot CLI 1.0.105 ran Looper v1.1.0 non-interactively (`copilot -p`, autopilot, no `ask_user`, no custom instructions, model chosen automatically) in a fresh Git project. The request was to build `slug.py` with `slugify(text, max_length=None)`, a CLI, and unittest tests, following eight stated rules.
+
+| Check | Result |
+|-------|--------|
+| GitHub Copilot loaded the `looper` skill and used the bundled helper | Yes |
+| Acceptance criteria recorded | 6 (`criteria 6`) |
+| Passes used | 2 of 20: one work pass, one final pass |
+| Recorded runs | 9 |
+| Work pass 01 | Baseline `python3 -m unittest -v` exited 5 (no tests yet), recorded before any edit. Three initial checks (unit tests, a standard-library import and documentation check, `git diff --check`) exited 0. No repair was needed. Closed `passed`. |
+| Final pass 02 | Snapshot of every deliverable file's SHA-256 plus the Python and Unicode versions, then the three checks covering AC01–AC06, then the same snapshot with identical output. Closed `passed`. |
+| `verdict` | `complete=yes final=02 criteria=6` |
+| Project tests, rerun by the harness | Passed |
+| Hidden acceptance checks the agent never saw | 11 / 11 passed (accents, non-Latin text, empty and all-separator input, truncation without a trailing hyphen, `ValueError` for `max_length` < 1, and the CLI) |
+| Wall time | 3 minutes 36 seconds |
+
+The harness checks the result independently of the agent's own report: it asks the helper for the verdict, reruns the project's tests, and only then runs hidden checks written into the harness rather than the project.
+
+## What changed since v1.0.0
+
+- **Evidence gates.** `close passed` and `verdict` now depend on run records the helper writes itself, so passing can no longer rest on the agent's word. The helper also enforces one repair per work pass, three executions per check per phase, command timeouts that stop the whole process group, and criteria counts that can only grow.
+- **Named loops.** Independent goals can use `.ralph-loop-NAME/` with their own budgets, and `loops` lists them.
+- **Verified installs.** Releases are built from protected tags by the `Release` workflow, published immutably with `SHA256SUMS` and build provenance attestations, and installed by a `quickstart.sh` that verifies the checksum and refuses branch names.
 
 ## Limitations
 
-- No production task has yet been run end to end through the skill's AI policy. The repair-bound, stale-evidence, and completion rules were inspected but not exercised through a live GitHub Copilot session.
-- Ledger compatibility after the rename was verified with disposable ledger data, not a live project ledger.
+- The end-to-end run is one task on one model. The repair path, exhaustion, and recovery after an interrupted pass were exercised by the helper self-tests, not by a live GitHub Copilot session, because this task passed on its first attempt.
+- The helper proves that recorded checks ran and passed, that snapshots match, and that every criterion has a check. It cannot prove that a check meaningfully tests its criterion; the policy in `SKILL.md` and human review cover that.
+- `SHA256SUMS` comes from the same release as the tarball. It detects corrupted or altered downloads, not a compromised release; `LOOPER_SHA256` and `LOOPER_VERIFY_ATTESTATION=1` cover that case.
 - Individual renames are not a multi-file transaction, and the helper assumes cooperating local writers.

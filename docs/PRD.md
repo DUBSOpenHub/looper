@@ -68,6 +68,8 @@ Long coding and documentation tasks can outlive sessions or lose context. Conver
 - Preserve the `.ralph-loop/` project state path so existing budgets and recovery records remain discoverable; do not silently migrate or initialize a fresh ledger.
 
 ## Frozen Public Helper Contract
+> **v1.1 update:** This contract was frozen for v1.0. v1.1 extends it with `criteria`, `run`, `repair`, `verdict`, and `loops`, and with exit codes `6` and `7`, while keeping every operation and exit code below. See [ARCH.md](ARCH.md#v11-additions).
+
 This is the existing reservation/accounting interface, not new functionality. From `skills/looper`, invoke `bash scripts/pass-ledger.sh STATE <operation>`; `STATE` is the selected project-local loop-state directory.
 | Operation | Public behavior |
 |---|---|
