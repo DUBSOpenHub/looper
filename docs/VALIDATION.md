@@ -1,6 +1,6 @@
 # Validation Report
 
-Results for the current Looper release (v1.1.0).
+Recorded results for Looper v1.1.0, tested on November 4, 2026. This is release-specific evidence, not a claim that every agent or future revision has passed the same checks.
 
 | Suite | Result |
 |-------|--------|
@@ -37,7 +37,8 @@ The harness checks the result independently of the agent's own report: it asks t
 
 ## Limitations
 
-- The end-to-end run is one task on one model. The repair path, exhaustion, and recovery after an interrupted pass were exercised by the helper self-tests, not by a live GitHub Copilot session, because this task passed on its first attempt.
+- The end-to-end run covers one small task on macOS with automatic model selection, not a cross-model or cross-agent test matrix. The repair path, exhaustion, and recovery after an interrupted pass were exercised by the helper self-tests, not by a live GitHub Copilot session, because this task passed on its first attempt.
 - The helper proves that recorded checks ran and passed, that snapshots match, and that every criterion has a check. It cannot prove that a check meaningfully tests its criterion; the policy in `SKILL.md` and human review cover that.
-- `SHA256SUMS` comes from the same release as the tarball. It detects corrupted or altered downloads, not a compromised release; `LOOPER_SHA256` and `LOOPER_VERIFY_ATTESTATION=1` cover that case.
+- Named loops isolate state and budgets, not concurrent edits to shared deliverables. Give concurrent loops separate worktrees.
+- `SHA256SUMS` comes from the same release as the tarball, so matching it does not establish trust if both are compromised. `LOOPER_SHA256` requires an independently trusted expected hash; `LOOPER_VERIFY_ATTESTATION=1` verifies build provenance, not code safety or the integrity of a compromised trusted workflow. See [SECURITY.md](../SECURITY.md#trust-boundary) and [GitHub's attestation guidance](https://docs.github.com/en/actions/concepts/security/artifact-attestations).
 - Individual renames are not a multi-file transaction, and the helper assumes cooperating local writers.

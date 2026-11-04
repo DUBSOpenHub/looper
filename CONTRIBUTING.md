@@ -20,6 +20,8 @@ Open an [Issue](https://github.com/DUBSOpenHub/looper/issues) to:
 4. **Test your changes**: run the checks below
 5. **Open a PR**: fill out the template and describe what you changed
 
+Read [AGENTS.md](AGENTS.md) for repository invariants and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
+
 ## 🛠️ Development Setup
 
 ### Prerequisites
@@ -35,6 +37,9 @@ cd skills/looper
 shellcheck scripts/pass-ledger.sh
 python3 -B scripts/test_pass_ledger.py
 cd ../..
+/bin/bash -n quickstart.sh
+/bin/bash -n tools/build-release.sh
+/bin/bash -n e2e/run-copilot-e2e.sh
 shellcheck quickstart.sh tools/build-release.sh e2e/run-copilot-e2e.sh
 python3 -B tests/test_quickstart.py
 ```
@@ -43,10 +48,12 @@ To exercise the skill itself, install your checkout with `./quickstart.sh` and r
 
 CI runs the same checks on every pull request. Branch protection on `main` requires the `validate` check to pass.
 
+For documentation-only changes, check changed links and runnable examples; a live AI run is not required unless execution behavior needs verification. Record documentation corrections under `Unreleased` without changing historical release results.
+
 ## ✅ Ground Rules
 
 - **The 20-pass budget is fixed.** Do not add a reset, refund, or configurable-limit operation.
-- **Keep `.ralph-loop/` and the `ralph-loop-pass-ledger-v1` marker.** They keep ledgers created before the rename resumable.
+- **Preserve loop identity and history.** Keep `.ralph-loop/` for the default goal, `.ralph-loop-NAME/` for independent named goals, and the `ralph-loop-pass-ledger-v1` marker. A named loop is not a budget reset. Use separate worktrees for concurrent edits.
 - **No new runtime dependencies.** The helper stays Bash-only; tests stay on the Python standard library.
 - **Never weaken verification.** Changes must not let a criterion be removed, skipped, or redefined to obtain green results.
 - **Never let `passed` succeed without recorded evidence.** `close passed` and `verdict` must keep depending on the helper's own run records.

@@ -36,7 +36,7 @@ Looper is a skill in the open [Agent Skills](https://agentskills.io/specificatio
 
 **read state → reserve → implement → validate → repair → revalidate → checkpoint**
 
-Everything lives on disk, so a context reset, crash, or new session resumes exactly where the last one stopped.
+Task state and evidence live on disk. After a context reset, crash, or new session, the agent reconciles that state with the current files before continuing interrupted work.
 
 ### 💬 The Problem
 
@@ -45,9 +45,9 @@ Long agent runs fail in predictable ways: they lose context, claim success from 
 ### ⚡ What Makes It Different
 
 - 🔢 **A hard 20-pass budget.** Passes are counted by creating directories, not by trusting memory. There is no reset and no way to configure the limit.
-- 💾 **Durable, project-local state.** Goal, criteria, task graph, progress, and evidence are stored in `.ralph-loop/` inside your project.
-- ✅ **Acceptance criteria you can't weaken.** Each `AC` has a concrete verifier and an expected result. Looper never removes or redefines a criterion to get green.
-- 🧾 **Passing needs recorded evidence.** Checks run through the helper, which records each command, its output, and its exit code. A pass cannot be closed `passed`, and a loop cannot be called complete, unless those records prove it.
+- 💾 **Durable, project-local state.** Goal, criteria, task graph, progress, and evidence are stored in `.ralph-loop/`, or `.ralph-loop-NAME/` for an independent named loop.
+- ✅ **Criteria that must not be weakened.** Each `AC` has a concrete verifier and an expected result. The helper prevents lowering the criteria count; the skill's policy forbids removing or redefining criteria to get green.
+- 🧾 **Passing needs recorded evidence.** Checks run through the helper, which records each command, its output, and its exit code. `close passed` and `verdict` refuse success without passing run records. Choosing meaningful checks remains the agent's responsibility.
 - 🔧 **One bounded repair per pass.** A pass gets at most one repair batch and one revalidation, and each check runs at most three times per phase. The helper enforces both.
 - 🧪 **A mandatory final gate.** A separate, read-only final pass re-runs every verifier, covers every acceptance criterion, and must produce the same deliverable snapshot at its start and end before completion can be declared.
 - 🗂️ **Named loops for independent goals.** One project can hold several loops, each with its own budget and evidence.
@@ -78,7 +78,7 @@ Looper is built for GitHub Copilot and follows the open [Agent Skills](https://a
 - **Other AI agents.** [`gh skill`](https://cli.github.com/manual/gh_skill) can install skills for Claude Code, Cursor, Codex, Gemini CLI, and many more, using the `--agent` flag shown above. `gh skill` is in preview, so its flags may change.
 - **Anything else.** Point your agent at [`skills/looper/SKILL.md`](skills/looper/SKILL.md) and ask it to follow the instructions.
 
-> **What is verified.** The pass-ledger helper and its self-tests are plain Bash and Python, and CI runs them on every pull request. The skill's wording is written for GitHub Copilot (for example, it uses `ask_user` when available and records a blocker when it is not), and how faithfully another agent follows it depends on the tool and the model behind it.
+> **What is verified.** v1.1.0 has 37 helper tests and 8 installer/release-build tests, plus one successful end-to-end task through the GitHub Copilot CLI on macOS: 2 passes and 11 independent acceptance checks. Other agent surfaces have not had equivalent end-to-end testing. See [the validation report and its limitations](docs/VALIDATION.md).
 
 ## 🗂️ State Layout
 
@@ -101,24 +101,29 @@ Looper is built for GitHub Copilot and follows the open [Agent Skills](https://a
 
 `skills/looper/scripts/pass-ledger.sh` enforces reservations, the budget, the repair and retry limits, command timeouts, and the evidence needed to pass. It cannot judge whether a verifier really tests its criterion; the policy in `SKILL.md` covers that.
 
+Run this happy-path example from a project's real root directory with Looper installed and no existing loop. It assumes `slug.py`, `test_slug.py`, and `README.md` are the complete deliverable set, and the unittest suite verifies AC01. Adapt the files and criteria to your actual task.
+
 ```bash
-bash pass-ledger.sh .ralph-loop init
-bash pass-ledger.sh .ralph-loop criteria 3                 # AC01..AC03
-bash pass-ledger.sh .ralph-loop reserve work S01
-bash pass-ledger.sh .ralph-loop run 01 --baseline -- python3 -m unittest
-bash pass-ledger.sh .ralph-loop run 01 --ac AC01 --timeout 300 -- python3 -m unittest
-bash pass-ledger.sh .ralph-loop repair 01                  # at most once, after a failed run
-bash pass-ledger.sh .ralph-loop close 01 passed            # refused without passing evidence
-bash pass-ledger.sh .ralph-loop reserve final ALL
-bash pass-ledger.sh .ralph-loop run 02 --snapshot -- git ls-files -s
-bash pass-ledger.sh .ralph-loop run 02 --ac AC01,AC02,AC03 -- python3 -m unittest
-bash pass-ledger.sh .ralph-loop run 02 --snapshot -- git ls-files -s
-bash pass-ledger.sh .ralph-loop close 02 passed
-bash pass-ledger.sh .ralph-loop verdict                    # complete=yes final=02 criteria=3
-bash pass-ledger.sh . loops                                # every loop in this project
+LEDGER="$HOME/.copilot/skills/looper/scripts/pass-ledger.sh"
+bash "$LEDGER" .ralph-loop init
+bash "$LEDGER" .ralph-loop criteria 1                     # AC01
+bash "$LEDGER" .ralph-loop reserve work S01
+bash "$LEDGER" .ralph-loop run 01 --baseline -- python3 -B -m unittest
+# Implement the scoped change here.
+bash "$LEDGER" .ralph-loop run 01 --ac AC01 --timeout 300 -- python3 -B -m unittest
+bash "$LEDGER" .ralph-loop close 01 passed
+bash "$LEDGER" .ralph-loop reserve final ALL
+bash "$LEDGER" .ralph-loop run 02 --snapshot -- shasum -a 256 slug.py test_slug.py README.md
+bash "$LEDGER" .ralph-loop run 02 --ac AC01 -- python3 -B -m unittest
+bash "$LEDGER" .ralph-loop run 02 --snapshot -- shasum -a 256 slug.py test_slug.py README.md
+bash "$LEDGER" .ralph-loop close 02 passed
+bash "$LEDGER" .ralph-loop verdict                       # complete=yes final=02 criteria=1
+bash "$LEDGER" . loops                                   # every loop in this project
 ```
 
-In a real final pass, the snapshot command must cover every deliverable, including untracked files and uncommitted changes.
+A failed baseline is recorded with exit code `7`; assess it before editing rather than treating it as a passing check. If initial validation fails, call `bash "$LEDGER" .ralph-loop repair 01` once before the repair edits, then rerun the same failing check and the affected regression checks before closing the pass. Do not call `repair` after a passing check. If revalidation fails, close the pass `failed`, not `passed`.
+
+The final snapshots must hash the actual contents of every deliverable, including untracked files and uncommitted changes, and capture relevant inputs and environment versions. `git ls-files -s` alone only fingerprints the index, not current working-tree contents.
 
 | Exit code | Meaning |
 |-----------|---------|
@@ -148,18 +153,26 @@ To exercise the skill itself, install your checkout with `./quickstart.sh` and r
 
 ## 🔐 Verify the Download
 
-Every release is built by the [`Release` workflow](.github/workflows/release.yml) from a protected `vX.Y.Z` tag and published as an immutable GitHub release with three assets: `looper-vX.Y.Z.tar.gz`, `quickstart.sh`, and `SHA256SUMS`. Both the tarball and the installer carry a GitHub build provenance attestation.
+Starting with v1.1.0, releases are built by the [`Release` workflow](.github/workflows/release.yml) from a protected `vX.Y.Z` tag and published as immutable GitHub releases with three assets: `looper-vX.Y.Z.tar.gz`, `quickstart.sh`, and `SHA256SUMS`. Both the tarball and the installer carry a GitHub build provenance attestation.
 
 - **Checksum (always on).** The installer refuses to install unless the tarball matches `SHA256SUMS`, and it installs only the four skill files.
-- **Pin a checksum.** Set `LOOPER_SHA256` to the tarball hash you expect, so a changed file is refused even if `SHA256SUMS` changes with it.
+- **Pin a checksum.** Set `LOOPER_SHA256` to a tarball hash obtained through an independently trusted channel, so a changed file is refused even if `SHA256SUMS` changes with it.
 - **Check provenance.** Set `LOOPER_VERIFY_ATTESTATION=1` to have the installer run `gh attestation verify` against this repository's release workflow and tag.
 - **Pick a version.** `LOOPER_VERSION=vX.Y.Z` installs another release. Branch names such as `main` are refused.
 
+The one-line installer executes the downloaded installer before it checks the tarball. To verify the installer itself first, use an up-to-date, authenticated GitHub CLI and run this from a separate download directory, not a Looper checkout:
+
 ```bash
-curl -fsSLO https://github.com/DUBSOpenHub/looper/releases/download/v1.1.0/quickstart.sh
-gh attestation verify quickstart.sh --repo DUBSOpenHub/looper
+curl -fsSLO https://github.com/DUBSOpenHub/looper/releases/download/v1.1.0/quickstart.sh &&
+gh attestation verify quickstart.sh --repo DUBSOpenHub/looper \
+  --signer-workflow DUBSOpenHub/looper/.github/workflows/release.yml \
+  --source-ref refs/tags/v1.1.0 &&
 LOOPER_VERIFY_ATTESTATION=1 bash quickstart.sh
 ```
+
+`SHA256SUMS` alone cannot establish trust if both the archive and checksum are compromised. [Attestations establish build provenance, not that the code is safe](https://docs.github.com/en/actions/concepts/security/artifact-attestations). A compromised trusted source or release workflow can still produce an attested artifact.
+
+Running `./quickstart.sh` inside a clone deliberately installs the local checkout instead; release checksum and attestation checks do not apply in that mode.
 
 ## 📁 Repository Layout
 
@@ -173,8 +186,12 @@ LOOPER_VERIFY_ATTESTATION=1 bash quickstart.sh
 | `tools/build-release.sh` | Builds the release tarball, installer copy, and `SHA256SUMS` |
 | `tests/test_quickstart.py` | Installer and release-build tests |
 | `e2e/run-copilot-e2e.sh` | End-to-end run through the GitHub Copilot CLI with hidden acceptance checks |
-| `docs/PRD.md` | Product requirements and acceptance criteria |
-| `docs/ARCH.md` | Design and persistence safeguards |
+| `AGENTS.md` | Contributor instructions, invariants, and validation commands |
+| `SECURITY.md` | Supported versions, private vulnerability reporting, and trust boundaries |
+| `CONTRIBUTING.md` | Development and release workflow |
+| `CHANGELOG.md` | Release history and unreleased changes |
+| `docs/PRD.md` | Original v1.0 requirements with a v1.1 contract update |
+| `docs/ARCH.md` | Original design with v1.1 evidence-gate and release additions |
 | `docs/VALIDATION.md` | Test and gap-score results for the current release |
 
 ## ❓ FAQ
@@ -192,7 +209,10 @@ No. The helper has no reset or configurable-limit operation, by design.
 Yes, for independent goals. Say `looper as NAME: <request>`; state goes to `.ralph-loop-NAME/` with its own 20-pass budget, and `looper list` shows every loop. Use separate git worktrees if the loops would run at the same time.
 
 **Can an agent just mark a pass as passed?**
-No. `close passed` exits `6` unless the helper's own run records show the checks finished and passed, and `verdict` re-checks the final pass's evidence. The helper cannot tell whether a test is meaningful, which is why the acceptance criteria and the final gate in `SKILL.md` still matter.
+Not through the helper without evidence: `close passed` exits `6` unless its run records satisfy the gate, and `verdict` re-checks the final pass. The helper cannot tell whether a test is meaningful, and its local files are not tamper-proof against an agent with write access. See the [security trust boundary](SECURITY.md#trust-boundary).
+
+**What happens to a v1.0 loop after upgrading?**
+Its history and spent passes stay intact. Close an open legacy pass `failed` or `interrupted`, then reserve new passes for evidence-backed validation within the remaining budget. An old `passed` result without run records does not satisfy the v1.1 completion gate. Never delete state or reset the budget to upgrade.
 
 **Can I rename the skill without losing a running loop?**
 Yes. Renaming the skill never migrates state, resets the budget, or discards history.
