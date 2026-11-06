@@ -143,6 +143,10 @@ bash "$SKILL_DIR/scripts/pass-ledger.sh" "$STATE" run 01 --label unit --ac AC01,
 bash "$SKILL_DIR/scripts/pass-ledger.sh" "$STATE" repair 01   # once, after a failed initial run
 ```
 
+`run` refuses another command while any earlier run in the pass is unfinished,
+including an allocation without published metadata. Wait for a live command;
+for abandoned evidence, establish writer/command inactivity and close the pass
+`interrupted` before reserving another. Never delete evidence to unblock a run.
 `run` releases the ledger lock while the command executes, kills the whole
 process group on timeout or interruption, prints the last 200 output lines and
 `run=NN/NNN phase=P exit=N output=PATH`, and exits `7` when the command fails.
@@ -324,6 +328,6 @@ failure is also a stop. `verdict` prints `complete=yes final=NN criteria=N` or
 
 From `skills/looper/` (or the installed `looper` skill directory), run
 `/bin/bash -n scripts/pass-ledger.sh` and
-`python3 -B scripts/test_pass_ledger.py` (37 tests); optionally run
+`python3 -B scripts/test_pass_ledger.py` (39 tests); optionally run
 `shellcheck scripts/pass-ledger.sh`. Python 3 is needed only for these
 standard-library self-tests, which create and remove fixtures inside this directory.

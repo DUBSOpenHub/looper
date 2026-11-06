@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Refuse overlapping checks in a pass while earlier run evidence is unfinished, even though commands run without holding the ledger lock. Partial run allocations also require reconciliation before another check; interrupted-pass recovery and the spent budget remain unchanged.
+
 ### Documentation
 - Corrected the README helper example to use the installed helper path, hash working-tree file contents, and keep repair instructions separate from the passing path.
 - Aligned AGENTS.md, CONTRIBUTING.md, and SECURITY.md with named loops, evidence boundaries, and documentation-only checks.

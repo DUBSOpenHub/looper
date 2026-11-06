@@ -623,6 +623,65 @@ class PassLedgerTests(unittest.TestCase):
         self.run_ledger("close", "01", "passed", expected=6)
         self.run_ledger("close", "01", "failed")
 
+    def test_overlapping_runs_are_refused_until_the_active_run_finishes(self):
+        for mode, target in (("work", "S01"), ("final", "ALL")):
+            with self.subTest(mode=mode):
+                self.state = self.home / mode
+                self.initialize()
+                self.run_ledger("reserve", mode, target)
+                ready = (self.home / f"{mode}-ready").resolve()
+                release = (self.home / f"{mode}-release").resolve()
+                unexpected = (self.home / f"{mode}-unexpected").resolve()
+                helper = subprocess.Popen(
+                    ["/bin/bash", str(LEDGER), str(self.state.resolve()),
+                     "run", "01", "--timeout", "15", "--", "sh", "-c",
+                     'touch "$1"; while [ ! -f "$2" ]; do sleep 0.05; done',
+                     "hold", str(ready), str(release)],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                )
+                try:
+                    self.wait_for(ready.exists, "first command never started")
+                    self.assertIsNone(helper.poll())
+                    self.assertFalse((self.state / ".lock").exists())
+                    self.assertIn("open=01", self.run_ledger("status"))
+                    self.run_ledger(
+                        "run", "01", "--", "touch", str(unexpected), expected=6
+                    )
+                    self.assertFalse(unexpected.exists())
+                    self.assertFalse(self.run_dir("01", 2).exists())
+                finally:
+                    release.touch()
+                    stdout, stderr = helper.communicate(timeout=20)
+                self.assertEqual(helper.returncode, 0, stdout + stderr)
+                self.assertEqual((self.run_dir("01", 1) / "exit").read_text(), "0\n")
+                self.prove("01")
+                self.assertEqual((self.run_dir("01", 2) / "exit").read_text(), "0\n")
+                self.run_ledger("close", "01", "interrupted")
+
+    def test_unfinished_evidence_blocks_new_runs_without_blocking_recovery(self):
+        for kind in ("allocated", "published"):
+            with self.subTest(kind=kind):
+                self.state = self.home / kind
+                self.initialize()
+                self.run_ledger("reserve", "work", "S01")
+                run = self.run_dir("01", 1)
+                if kind == "published":
+                    self.prove("01")
+                    (run / "exit").unlink()
+                else:
+                    run.mkdir(parents=True)
+                    (run / "command.new").write_text("partial command\n")
+                before = {path.name: path.read_bytes() for path in run.iterdir()}
+                self.run_ledger("run", "01", "--", "true", expected=6)
+                self.assertEqual(
+                    {path.name: path.read_bytes() for path in run.iterdir()}, before
+                )
+                self.assertFalse(self.run_dir("01", 2).exists())
+                self.run_ledger("close", "01", "interrupted")
+                self.assertEqual(self.run_ledger("reserve", "work", "S01"), "02")
+                self.prove("02")
+                self.run_ledger("close", "02", "passed")
+
     def test_timeout_stops_the_whole_process_group(self):
         self.new_case("timeout")
         project = self.home / "project"

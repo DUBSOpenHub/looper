@@ -584,6 +584,8 @@ case "$action" in
         for entry in "$pass/runs"/[0-9][0-9][0-9]; do
             [[ -d "$entry" ]] || continue
             load_run "$entry"
+            [[ -n "$r_phase" && "$r_complete" == 1 ]] ||
+                fail 6 "run ${entry##*/} is still in flight or inconclusive; reconcile it before starting another run"
             if [[ "$phase" == baseline && -n "$r_phase" && "$r_phase" != baseline ]]; then
                 fail 6 'baseline runs must precede validation runs in this pass'
             fi
