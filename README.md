@@ -1,6 +1,6 @@
 # 🔁 Looper
 
-<img src="assets/hero.svg" alt="Looper: small steps, checked results, saved progress. An animated illustration of the work cycle and the maximum of 20 attempts, including final verification." width="100%">
+<img src="assets/hero.svg" alt="Looper helps AI coding agents finish what they start with saved progress, recorded test evidence, and final verification. An animated illustration of the work cycle and the maximum of 20 attempts." width="100%">
 
 Looper helps AI coding agents complete complex tasks while keeping track of progress and checking results before declaring success.
 

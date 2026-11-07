@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-labelledby="title description">
-  <title id="title">Looper: small steps, checked results, saved progress</title>
-  <desc id="description">An illustrated work cycle: read saved progress, count an attempt, make a change, test, fix if needed, retest, and save progress. Up to 20 attempts, including final verification. Progress is saved in the project so work can resume after an interruption. This is an illustration, not a live status display.</desc>
+  <title id="title">Looper: help AI coding agents finish what they start</title>
+  <desc id="description">Looper helps AI coding agents complete complex tasks while keeping track of progress and checking results before declaring success. Built on the open Agent Skills standard, it breaks work into manageable steps, saves progress across interruptions, limits execution to 20 attempts, records test evidence, and requires final verification before reporting completion. The animated work cycle is an illustration, not a live status display.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" fill="none" stroke="#223247" stroke-opacity=".35"/>
@@ -25,9 +25,9 @@
   <circle class="signal" cx="64" cy="57" r="5" fill="#3DDC97"/>
   <text x="82" y="63" fill="#8A98AA" font-size="14" letter-spacing="3">GITHUB COPILOT / AGENT SKILLS</text>
   <text x="60" y="160" fill="#EAF0F7" font-size="80" font-weight="700" letter-spacing="-4">LOOPER</text>
-  <text x="64" y="211" fill="#35D0F5" font-size="25">Small steps. Checked results. Saved progress.</text>
-  <text x="64" y="255" fill="#C3CEDB" font-size="19">Make a change. Check it. Fix it if needed.</text>
-  <text x="64" y="286" fill="#C3CEDB" font-size="19">Save progress so work can resume.</text>
+  <text x="64" y="211" fill="#35D0F5" font-size="25">Help AI coding agents finish what they start.</text>
+  <text x="64" y="255" fill="#C3CEDB" font-size="19">Keep progress. Record test evidence.</text>
+  <text x="64" y="286" fill="#C3CEDB" font-size="19">Verify results before reporting completion.</text>
   <rect x="64" y="315" width="566" height="36" rx="18" fill="#0E151E" stroke="#223247"/>
   <text x="83" y="338" fill="#3DDC97" font-size="13">STOP: VERIFIED / BLOCKED / 20 ATTEMPTS USED</text>
   <circle cx="990" cy="210" r="142" fill="#0E151E" stroke="#223247"/>
