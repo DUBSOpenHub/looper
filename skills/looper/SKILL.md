@@ -1,11 +1,10 @@
 ---
 name: looper
 description: >
-  GitHub Copilot breaks your request into small steps, makes changes, checks
-  the results, and fixes failures. Saves progress in your project so work can
-  resume after an interruption. Stops when everything is verified, a blocker
-  prevents progress, or 20 attempts are used. Say "looper" or "run looper" to
-  start or resume.
+  Break your request into small steps, check the results, and save progress so
+  work can resume after an interruption. Stops when everything is verified,
+  a blocker prevents progress, or 20 attempts are used. Built for GitHub Copilot
+  and other AI agents that support Agent Skills.
 ---
 
 # Looper
