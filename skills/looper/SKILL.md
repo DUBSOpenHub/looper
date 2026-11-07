@@ -1,17 +1,28 @@
 ---
 name: looper
 description: >
-  GitHub Copilot turns any request into small, testable steps, implements and
-  validates them, repairs failures, and resumes from project-local files after
-  context resets. Stops only with verified acceptance, a genuine blocker, or
-  the hard limit of 20 passes. Say "looper" or "run looper" to start or resume.
+  GitHub Copilot breaks your request into small steps, makes changes, checks
+  the results, and fixes failures. Saves progress in your project so work can
+  resume after an interruption. Stops when everything is verified, a blocker
+  prevents progress, or 20 attempts are used. Say "looper" or "run looper" to
+  start or resume.
 ---
 
 # Looper
 
-Execute the request, not just a plan. Repeat **read state → reserve → implement
-→ validate → repair → revalidate → checkpoint**. Disk is the source of truth.
+Execute the request, not just a plan. Repeat **read saved progress → count an
+attempt → make a change → test → fix if needed → retest → save progress**.
+The technical names for these stages are **read state → reserve → implement
+→ validate → repair → revalidate → checkpoint**. Repair and revalidation happen
+only when checks fail. Disk is the source of truth.
 Never equate a successful edit, a green subset, or exhausted effort with success.
+
+In this skill, a **pass** means one recorded attempt at a small step or a separate
+final verification attempt. The fixed budget is 20 attempts total, including
+failed and interrupted attempts, not 20 steps or 20 minutes. **Durable state**
+means the goal, checks, progress, results, and attempt count are saved in project
+files so a later active session can resume without starting over or resetting
+the budget.
 
 ## 1. Establish the goal and durable state
 

@@ -8,7 +8,7 @@ This repository ships one skill in the open [Agent Skills](https://agentskills.i
 
 ### looper
 
-- **Purpose**: Carries a request to verified completion through a bounded loop of small, testable steps, with durable project-local state and a hard limit of 20 passes.
+- **Purpose**: Breaks a request into small steps, makes changes, checks the results, and saves progress in the project so work can resume after an interruption. Stops when everything is verified, a blocker prevents progress, or 20 attempts are used. Failed and interrupted attempts and the separate final verification count toward the limit.
 - **Usage**: Open GitHub Copilot, or any agent that has the skill installed, in a project and say:
   ```
   looper

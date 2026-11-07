@@ -4,6 +4,11 @@
 **Product:** `looper` skill for GitHub Copilot CLI, replacing the callable skill name `ralph-loop`.
 **Authority:** User-supplied `ralph-loop-input-prd.md` plus the user's in-run name selection; this FULL-mode handoff preserves its requirements and eight acceptance statements and adds AC09 for the naming change.
 
+## Plain-language overview
+Looper breaks a request into small steps, makes changes, checks the results, and saves progress in the project so work can resume after an interruption. It stops when everything is verified, a blocker prevents progress, or 20 attempts are used.
+
+The cycle is **read saved progress → count an attempt → make a change → test → fix if needed → retest → save progress**. Fixing and retesting happen only when checks fail. A **pass** means one recorded attempt at a small step or a separate final verification attempt; failed and interrupted attempts count too. **Durable state** means saved project files, not just chat memory. The limit is 20 attempts total, not 20 steps or 20 minutes, and reaching it does not mean success.
+
 ## Goal
 Harden the existing skill so GitHub Copilot carries requests through bounded, resumable implementation and appropriate verification, preserves progress on disk, and stops on verified completion, a genuine blocker, or exhaustion of 20 reserved passes.
 

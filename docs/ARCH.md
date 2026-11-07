@@ -5,6 +5,12 @@ Decision: preserve the existing four-file architecture and v1 helper contract.
 
 > **v1.1 update:** This document records the v1.0 design. v1.1 deliberately extends the helper contract with evidence gates, named loops, and verified releases; see [v1.1 additions](#v11-additions).
 
+## Plain-language overview
+
+The work cycle is **read saved progress → count an attempt → make a change → test → fix if needed → retest → save progress**. The technical terms are read state, reserve, implement, validate, repair, revalidate, and checkpoint. Fixing and retesting happen only when checks fail; each work attempt allows one round of fixes.
+
+A **pass** is a recorded attempt at a small step or a separate final verification attempt. Failed and interrupted attempts count toward the fixed total of 20. **Durable state** means the goal, checks, progress, results, and attempt count are saved in project files so another active session can resume without starting over. Reaching the limit is not success.
+
 ## Scope and current strengths
 
 Harden the existing skill for GitHub Copilot; expose it under the callable name `looper` without replacing it with another product. Install from `skills/looper/` into `~/.copilot/skills/looper/`. Preserve `.ralph-loop/` project-local durable state unchanged for existing runs. Keep Bash 3.2/macOS compatibility, Python standard-library tests, existing user work, and all eight original tests.
