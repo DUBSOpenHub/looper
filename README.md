@@ -2,9 +2,7 @@
 
 <img src="assets/hero.svg" alt="Looper helps AI coding agents finish what they start with saved progress, recorded test evidence, and final verification. An animated illustration of the work cycle and the maximum of 20 attempts." width="100%">
 
-Looper helps AI coding agents complete complex tasks while keeping track of progress and checking results before declaring success.
-
-Built on the open Agent Skills standard, Looper breaks work into manageable steps, saves progress across interruptions, limits execution to 20 attempts, records test evidence, and requires final verification before reporting completion.
+Looper helps AI coding agents finish what they start. Bounded, resumable execution with recorded test evidence and final verification. Built on the open Agent Skills standard.
 
 [![Validate](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml/badge.svg)](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
