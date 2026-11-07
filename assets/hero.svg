@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-labelledby="title description">
+  <title id="title">Looper: small steps, checked results, saved progress</title>
+  <desc id="description">An illustrated work cycle: read saved progress, count an attempt, make a change, test, fix if needed, retest, and save progress. Up to 20 attempts, including final verification. Progress is saved in the project so work can resume after an interruption. This is an illustration, not a live status display.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#223247" stroke-opacity=".35"/>
+    </pattern>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop stop-color="#35D0F5"/>
+      <stop offset="1" stop-color="#3DDC97"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+    .orbit{transform-origin:990px 210px;animation:orbit 14s linear infinite}
+    .signal{animation:signal 3s ease-in-out infinite}
+    .traveler{animation:travel 14s linear infinite}
+    @keyframes orbit{to{transform:rotate(360deg)}}
+    @keyframes signal{0%,100%{opacity:1}50%{opacity:.4}}
+    @keyframes travel{0%,100%{transform:translateX(0)}90%{transform:translateX(1002px)}}
+    @media(prefers-reduced-motion:reduce){.orbit,.signal,.traveler{animation:none}}
+  </style>
+  <rect x="1" y="1" width="1278" height="558" rx="24" fill="#0A0F16" stroke="#223247" stroke-width="2"/>
+  <rect x="2" y="2" width="1276" height="556" rx="24" fill="url(#grid)"/>
+  <circle class="signal" cx="64" cy="57" r="5" fill="#3DDC97"/>
+  <text x="82" y="63" fill="#8A98AA" font-size="14" letter-spacing="3">GITHUB COPILOT / AGENT SKILLS</text>
+  <text x="60" y="160" fill="#EAF0F7" font-size="80" font-weight="700" letter-spacing="-4">LOOPER</text>
+  <text x="64" y="211" fill="#35D0F5" font-size="25">Small steps. Checked results. Saved progress.</text>
+  <text x="64" y="255" fill="#C3CEDB" font-size="19">Make a change. Check it. Fix it if needed.</text>
+  <text x="64" y="286" fill="#C3CEDB" font-size="19">Save progress so work can resume.</text>
+  <rect x="64" y="315" width="566" height="36" rx="18" fill="#0E151E" stroke="#223247"/>
+  <text x="83" y="338" fill="#3DDC97" font-size="13">STOP: VERIFIED / BLOCKED / 20 ATTEMPTS USED</text>
+  <circle cx="990" cy="210" r="142" fill="#0E151E" stroke="#223247"/>
+  <circle cx="990" cy="210" r="120" fill="none" stroke="#35D0F5" stroke-opacity=".55" stroke-width="8" stroke-dasharray="14 23.699"/>
+  <circle cx="990" cy="210" r="99" fill="none" stroke="#223247"/>
+  <g class="orbit">
+    <circle cx="990" cy="90" r="9" fill="#3DDC97" stroke="#0A0F16" stroke-width="4"/>
+  </g>
+  <text x="990" y="219" text-anchor="middle" fill="#EAF0F7" font-size="66" font-weight="700">20</text>
+  <text x="990" y="252" text-anchor="middle" fill="#35D0F5" font-size="14" letter-spacing="2">ATTEMPTS MAX</text>
+  <text x="990" y="373" text-anchor="middle" fill="#8A98AA" font-size="12">FINAL VERIFICATION COUNTS TOO</text>
+  <text x="64" y="395" fill="#8A98AA" font-size="12" letter-spacing="2">ILLUSTRATED WORK CYCLE</text>
+  <path d="M139 410H1141" fill="none" stroke="url(#line)" stroke-width="2"/>
+  <circle class="traveler" cx="139" cy="410" r="5" fill="#3DDC97"/>
+  <g fill="#0E151E" stroke="#223247">
+    <rect x="64" y="420" width="150" height="72" rx="10"/>
+    <rect x="231" y="420" width="150" height="72" rx="10"/>
+    <rect x="398" y="420" width="150" height="72" rx="10"/>
+    <rect x="565" y="420" width="150" height="72" rx="10"/>
+    <rect x="732" y="420" width="150" height="72" rx="10"/>
+    <rect x="899" y="420" width="150" height="72" rx="10"/>
+    <rect x="1066" y="420" width="150" height="72" rx="10"/>
+  </g>
+  <g fill="#EAF0F7" font-size="14" text-anchor="middle">
+    <text x="139" y="450">Read saved<tspan x="139" dy="22">progress</tspan></text>
+    <text x="306" y="450">Count an<tspan x="306" dy="22">attempt</tspan></text>
+    <text x="473" y="450">Make a<tspan x="473" dy="22">change</tspan></text>
+    <text x="640" y="461">Test</text>
+    <text x="807" y="450" fill="#FFB224">Fix if<tspan x="807" dy="22">needed</tspan></text>
+    <text x="974" y="461">Retest</text>
+    <text x="1141" y="450" fill="#3DDC97">Save<tspan x="1141" dy="22">progress</tspan></text>
+  </g>
+  <text x="64" y="529" fill="#8A98AA" font-size="12">FIX + RETEST ONLY WHEN CHECKS FAIL</text>
+  <text x="1216" y="529" text-anchor="end" fill="#8A98AA" font-size="12">SAVED IN YOUR PROJECT, NOT JUST THE CHAT</text>
+</svg>
