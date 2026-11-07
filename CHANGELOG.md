@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- Aligned the README introduction and repository About text with the approved wording, including “Built on the open Agent Skills standard.”
 - Updated the README introduction and animated header to explain how Looper helps AI coding agents complete complex tasks, preserve progress, record test evidence, and verify results.
 - Added a profile-style animated SVG header with a reduced-motion fallback, simplified explanations throughout the README, and aligned the README, skill description, and repository About wording.
 - Rewrote the README introduction, skill description, and supporting overviews in plain language; explained the work cycle, saved progress (“durable state”), and the 20-attempt limit without changing behavior.
