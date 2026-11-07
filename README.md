@@ -1,6 +1,6 @@
 # 🔁 Looper
 
-**Turn any request into small, verified steps. A bounded 20-pass loop with durable state for GitHub Copilot and any AI agent that supports Agent Skills.**
+**Break your request into small steps, check the results, and save progress so work can resume after an interruption. Stops when everything is verified, a blocker prevents progress, or 20 attempts are used. Built for GitHub Copilot and other AI agents that support Agent Skills.**
 
 [![Validate](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml/badge.svg)](https://github.com/DUBSOpenHub/looper/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -32,11 +32,17 @@
 
 ## 🤔 What Is This?
 
-Looper is a skill in the open [Agent Skills](https://agentskills.io/specification) format, built for GitHub Copilot, that carries a request all the way to **verified** completion instead of stopping at a plan or a green subset of tests. It breaks the request into numbered acceptance criteria and small steps, then repeats:
+Looper is a skill in the open [Agent Skills](https://agentskills.io/specification) format, built for GitHub Copilot. It breaks your request into small steps and defines checks for what “done” means. It works toward **verified completion**, rather than stopping after writing a plan or passing only some tests:
 
-**read state → reserve → implement → validate → repair → revalidate → checkpoint**
+**Read saved progress → count an attempt → make a change → test → fix if needed → retest → save progress.**
 
-Task state and evidence live on disk. After a context reset, crash, or new session, the agent reconciles that state with the current files before continuing interrupted work.
+Fixing and retesting happen only when checks fail. Each work attempt allows one round of fixes; if the checks still fail, another attempt is needed.
+
+### What do “pass” and “durable state” mean?
+
+A **pass** is one recorded attempt at a small step, or a separate final verification attempt. The limit is **20 attempts total**, not 20 steps or 20 minutes. Failed and interrupted attempts count too. Looper can finish earlier, but reaching the limit does not mean the work succeeded.
+
+**Durable state** means progress is saved in files, not just in the chat. Looper records the goal, checks, completed steps, results, remaining work, and attempts used in your project folder. After an interruption or context reset, the next active agent session reads those records and compares them with the current files before resuming. It does not start over or reset the attempt count.
 
 ### 💬 The Problem
 
@@ -44,11 +50,11 @@ Long agent runs fail in predictable ways: they lose context, claim success from 
 
 ### ⚡ What Makes It Different
 
-- 🔢 **A hard 20-pass budget.** Passes are counted by creating directories, not by trusting memory. There is no reset and no way to configure the limit.
-- 💾 **Durable, project-local state.** Goal, criteria, task graph, progress, and evidence are stored in `.ralph-loop/`, or `.ralph-loop-NAME/` for an independent named loop.
+- 🔢 **At most 20 recorded attempts.** The helper records each attempt in a numbered folder, rather than relying on chat memory. The limit cannot be raised or reset.
+- 💾 **Progress saved in your project.** The goal, checks, step plan, progress, and results are stored in `.ralph-loop/`, or `.ralph-loop-NAME/` for an independent named loop.
 - ✅ **Criteria that must not be weakened.** Each `AC` has a concrete verifier and an expected result. The helper prevents lowering the criteria count; the skill's policy forbids removing or redefining criteria to get green.
 - 🧾 **Passing needs recorded evidence.** Checks run through the helper, which records each command, its output, and its exit code. `close passed` and `verdict` refuse success without passing run records. Choosing meaningful checks remains the agent's responsibility.
-- 🔧 **One bounded repair per pass.** A pass gets at most one repair batch and one revalidation, and each check runs at most three times per phase. The helper enforces both.
+- 🔧 **One round of fixes per work attempt.** If checks fail, the agent can make one round of fixes and check again. Each check can run at most three times in the initial testing phase and three times in the retesting phase. The helper enforces both limits.
 - 🧪 **A mandatory final gate.** A separate, read-only final pass re-runs every verifier, covers every acceptance criterion, and must produce the same deliverable snapshot at its start and end before completion can be declared.
 - 🗂️ **Named loops for independent goals.** One project can hold several loops, each with its own budget and evidence.
 - 🛟 **Honest stopping.** It stops on verified acceptance, a genuine blocker, or exhaustion of the 20 passes, and reports which one.
@@ -66,7 +72,7 @@ looper resume docs
 looper list
 ```
 
-Looper inspects your project instructions and existing changes, writes acceptance criteria and a step plan to `.ralph-loop/state.md`, then works pass by pass until it is done, blocked, or out of passes.
+Looper reads your project instructions and existing changes, saves the checks for completion and a step plan to `.ralph-loop/state.md`, then works one attempt at a time until everything is verified, it is blocked, or all 20 attempts are used.
 
 Use a named loop (`looper as NAME: …`) only for a genuinely independent goal; its state lives in `.ralph-loop-NAME/`. Loops that edit the same files should not run at the same time, so give each concurrent loop its own git worktree or run them one after another. A named loop is never a way to get more passes for the same goal.
 

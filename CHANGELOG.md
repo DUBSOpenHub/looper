@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- Rewrote the README introduction, skill description, and supporting overviews in plain language; explained the work cycle, saved progress (“durable state”), and the 20-attempt limit without changing behavior.
 - Corrected the README helper example to use the installed helper path, hash working-tree file contents, and keep repair instructions separate from the passing path.
 - Aligned AGENTS.md, CONTRIBUTING.md, and SECURITY.md with named loops, evidence boundaries, and documentation-only checks.
 - Clarified tested agent coverage, legacy-loop upgrades, local versus release installs, and the limits of checksums and build provenance.
